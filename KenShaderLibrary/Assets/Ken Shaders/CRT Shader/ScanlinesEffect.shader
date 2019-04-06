@@ -52,7 +52,15 @@
                 float displacement = ((_Time.y * 1000)*_Speed) % _ScreenParams.y;
                 float ps = displacement + (i.scr_pos.y * _ScreenParams.y / i.scr_pos.w);
 
-                return ((int)(ps / floor(_LineWidth*lineSize)) % 2 == 0) ? color : color * float4(_Hardness,_Hardness,_Hardness,1);
+                int result = (int)(ps / floor(_LineWidth*lineSize));
+
+                if (result % 3 == 0) {
+                    return color * float4(_Hardness, 0.0f, 0.0f, 1);;
+                } else if (result % 3 == 1) {
+                    return color * float4(0.0f, _Hardness, 0.0f, 1);
+                } else {
+                    return color * float4(0.0f, 0.0f, _Hardness, 1);
+                }
             }
 
             ENDCG

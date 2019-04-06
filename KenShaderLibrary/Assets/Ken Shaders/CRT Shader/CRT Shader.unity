@@ -209,7 +209,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shader: {fileID: 4800000, guid: 232f8fa55e754fe4f907e99c246b1e33, type: 3}
   lineWidth: 2.82
-  hardness: 0.9
+  hardness: 1
   displacementSpeed: 0.1
 --- !u!1 &1200157429
 GameObject:

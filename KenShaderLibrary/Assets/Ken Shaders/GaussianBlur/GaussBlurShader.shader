@@ -21,6 +21,7 @@ Shader "KenShader/GaussBlurShader"
              #include "UnityCG.cginc"
              
              sampler2D _MainTex;
+             float4 _MainTex_TexelSize;
 			 float _BlurAmount; 
              
              struct v2f
@@ -42,22 +43,21 @@ Shader "KenShader/GaussBlurShader"
              half4 frag (v2f i) : COLOR
              {
  
-                 half4 sum = half4(0,0,0,0);
-                 #define GRABPIXEL(weight,kernelx) tex2Dproj( _GrabTexture, UNITY_PROJ_COORD(float4(i.uvgrab.x + _GrabTexture_TexelSize.x * kernelx*_Size, i.uvgrab.y, i.uvgrab.z, i.uvgrab.w))) * weight
-                 #define texelGrab(offset, weight) tex2D(_MainTex, float2(i.uv.x - offset * _BlurAmount, i.uv.y)) * weight;
- 
-                 sum += tex2D(_MainTex, float2(i.uv.x - 5.0 * _BlurAmount, i.uv.y)) * 0.025;
-                 sum += tex2D(_MainTex, float2(i.uv.x - 4.0 * _BlurAmount, i.uv.y)) * 0.05;
-                 sum += tex2D(_MainTex, float2(i.uv.x - 3.0 * _BlurAmount, i.uv.y)) * 0.09;
-                 sum += tex2D(_MainTex, float2(i.uv.x - 2.0 * _BlurAmount, i.uv.y)) * 0.12;
-                 sum += tex2D(_MainTex, float2(i.uv.x - _BlurAmount, i.uv.y)) * 0.15;
-                 sum += tex2D(_MainTex, float2(i.uv.x, i.uv.y)) * 0.16;
-                 sum += tex2D(_MainTex, float2(i.uv.x + _BlurAmount, i.uv.y)) * 0.15;
-                 sum += tex2D(_MainTex, float2(i.uv.x + 2.0 * _BlurAmount, i.uv.y)) * 0.12;
-                 sum += tex2D(_MainTex, float2(i.uv.x + 3.0 * _BlurAmount, i.uv.y)) * 0.09;
-                 sum += tex2D(_MainTex, float2(i.uv.x + 4.0 * _BlurAmount, i.uv.y)) * 0.05;
-                 sum += tex2D(_MainTex, float2(i.uv.x + 5.0 * _BlurAmount, i.uv.y)) * 0.025;
-				 
+                 half4 sum = half4(0, 0, 0, 0);
+                 #define texelGrab(offset, weight) tex2D(_MainTex, float2(i.uv.x + offset * _MainTex_TexelSize.x, i.uv.y)) * weight;
+
+                 sum += texelGrab(-5, 0.025);
+                 sum += texelGrab(-4, 0.05);
+                 sum += texelGrab(-3, 0.09);
+                 sum += texelGrab(-2, 0.12);
+                 sum += texelGrab(-1, 0.15);
+                 sum += texelGrab(0, 0.16);
+                 sum += texelGrab(1, 0.15);
+                 sum += texelGrab(2, 0.12);
+                 sum += texelGrab(3, 0.09);
+                 sum += texelGrab(4, 0.05);
+                 sum += texelGrab(5, 0.025);
+
                  return sum;
              }
              ENDCG
@@ -75,6 +75,7 @@ Shader "KenShader/GaussBlurShader"
              #include "UnityCG.cginc"
  
              sampler2D _GrabTexture : register(s0);
+             float4 _GrabTexture_TexelSize;
  			 float _BlurAmount; 
 
              struct v2f 
@@ -95,18 +96,20 @@ Shader "KenShader/GaussBlurShader"
  
              half4 frag (v2f i) : COLOR
              { 
-                 half4 sum = half4(0.0, 0.0, 0.0, 0.0); 
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y - 5.0 * _BlurAmount)) * 0.025;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y - 4.0 * _BlurAmount)) * 0.05;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y - 3.0 * _BlurAmount)) * 0.09;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y - 2.0 * _BlurAmount)) * 0.12;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y - _BlurAmount)) * 0.15;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y)) * 0.16;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y + _BlurAmount)) * 0.15;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y + 2.0 * _BlurAmount)) * 0.12;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y + 3.0 * _BlurAmount)) * 0.09;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y + 4.0 * _BlurAmount)) * 0.05;
-                 sum += tex2D(_GrabTexture, float2(i.uv.x, i.uv.y + 5.0 * _BlurAmount)) * 0.025;
+                 half4 sum = half4(0, 0, 0, 0);
+                 #define texelGrab(offset, weight) tex2D(_GrabTexture, float2(i.uv.x, i.uv.y + offset * _GrabTexture_TexelSize.x)) * weight;
+
+                 sum += texelGrab(-5, 0.025);
+                 sum += texelGrab(-4, 0.05);
+                 sum += texelGrab(-3, 0.09);
+                 sum += texelGrab(-2, 0.12);
+                 sum += texelGrab(-1, 0.15);
+                 sum += texelGrab(0, 0.16);
+                 sum += texelGrab(1, 0.15);
+                 sum += texelGrab(2, 0.12);
+                 sum += texelGrab(3, 0.09);
+                 sum += texelGrab(4, 0.05);
+                 sum += texelGrab(5, 0.025);
  
                  return sum;
              }		 

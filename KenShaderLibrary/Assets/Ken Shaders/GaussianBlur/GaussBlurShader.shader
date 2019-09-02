@@ -4,7 +4,7 @@ Shader "KenShader/GaussBlurShader"
    Properties
      {
          _MainTex ("Texture", 2D) = "white" { }
-		 _BlurAmount("BlurAmount", float) = 0.0075
+		 _BlurAmount("BlurAmount", int) = 1
      }
  
      SubShader
@@ -22,7 +22,8 @@ Shader "KenShader/GaussBlurShader"
              
              sampler2D _MainTex;
              float4 _MainTex_TexelSize;
-			 float _BlurAmount; 
+             int _BlurAmount;
+             float _KernelWeights[11];
              
              struct v2f
              {
@@ -44,19 +45,13 @@ Shader "KenShader/GaussBlurShader"
              {
  
                  half4 sum = half4(0, 0, 0, 0);
-                 #define texelGrab(offset, weight) tex2D(_MainTex, float2(i.uv.x + offset * _MainTex_TexelSize.x, i.uv.y)) * weight;
+                 #define texelGrab(offset, weight) tex2D(_MainTex, float2(i.uv.x + (offset * _MainTex_TexelSize.x), i.uv.y)) * weight;
 
-                 sum += texelGrab(-5, 0.025);
-                 sum += texelGrab(-4, 0.05);
-                 sum += texelGrab(-3, 0.09);
-                 sum += texelGrab(-2, 0.12);
-                 sum += texelGrab(-1, 0.15);
-                 sum += texelGrab(0, 0.16);
-                 sum += texelGrab(1, 0.15);
-                 sum += texelGrab(2, 0.12);
-                 sum += texelGrab(3, 0.09);
-                 sum += texelGrab(4, 0.05);
-                 sum += texelGrab(5, 0.025);
+                 for (int j = 1; j <= _BlurAmount; ++j) {
+                     sum += texelGrab(j, _KernelWeights[j]);
+                     sum += texelGrab(-j, _KernelWeights[j]);
+                 }
+                 sum += texelGrab(0, _KernelWeights[0]);
 
                  return sum;
              }
@@ -76,7 +71,8 @@ Shader "KenShader/GaussBlurShader"
  
              sampler2D _GrabTexture : register(s0);
              float4 _GrabTexture_TexelSize;
- 			 float _BlurAmount; 
+             int _BlurAmount;
+             float _KernelWeights[11];
 
              struct v2f 
              {
@@ -97,19 +93,13 @@ Shader "KenShader/GaussBlurShader"
              half4 frag (v2f i) : COLOR
              { 
                  half4 sum = half4(0, 0, 0, 0);
-                 #define texelGrab(offset, weight) tex2D(_GrabTexture, float2(i.uv.x, i.uv.y + offset * _GrabTexture_TexelSize.x)) * weight;
+                 #define texelGrab(offset, weight) tex2D(_GrabTexture, float2(i.uv.x, i.uv.y + (offset * _GrabTexture_TexelSize.x))) * weight;
 
-                 sum += texelGrab(-5, 0.025);
-                 sum += texelGrab(-4, 0.05);
-                 sum += texelGrab(-3, 0.09);
-                 sum += texelGrab(-2, 0.12);
-                 sum += texelGrab(-1, 0.15);
-                 sum += texelGrab(0, 0.16);
-                 sum += texelGrab(1, 0.15);
-                 sum += texelGrab(2, 0.12);
-                 sum += texelGrab(3, 0.09);
-                 sum += texelGrab(4, 0.05);
-                 sum += texelGrab(5, 0.025);
+                 for (int j = 1; j <= _BlurAmount; ++j) {
+                     sum += texelGrab(j, _KernelWeights[j]);
+                     sum += texelGrab(-j, _KernelWeights[j]);
+                 }
+                 sum += texelGrab(0, _KernelWeights[0]);
  
                  return sum;
              }		 
